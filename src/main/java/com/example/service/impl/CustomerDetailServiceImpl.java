@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 public class CustomerDetailServiceImpl implements CustomerDetailService {
     private final WebClient webClient;
@@ -17,8 +18,8 @@ public class CustomerDetailServiceImpl implements CustomerDetailService {
         this.path = path;
     }
     @Override
-    public CustomerDetailDto getCustomerDetails(String email) {
-        CustomerDetailResponse response = webClient.get()
+    public Mono<CustomerDetailDto> getCustomerDetails(String email) {
+        return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(path)
                         .queryParam("email", email)
@@ -26,8 +27,7 @@ public class CustomerDetailServiceImpl implements CustomerDetailService {
                 .header("X-API", "ABC123")
                 .retrieve()
                 .bodyToMono(CustomerDetailResponse.class)
-                .block();
-        return response.customer;
+                .map(CustomerDetailResponse::getCustomer);
     }
     @NoArgsConstructor
     @Data

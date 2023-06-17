@@ -1,7 +1,8 @@
 package com.example.service;
 
 import com.example.model.CustomerDetailDto;
+import reactor.core.publisher.Mono;
 
 public interface CustomerDetailService {
-    CustomerDetailDto getCustomerDetails(String email);
+    Mono<CustomerDetailDto> getCustomerDetails(String email);
 }

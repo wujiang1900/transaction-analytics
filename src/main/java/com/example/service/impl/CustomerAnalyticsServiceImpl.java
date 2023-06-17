@@ -11,12 +11,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
+@Profile({"default", "mock"})
 public class CustomerAnalyticsServiceImpl implements CustomerAnalyticsService {
     private final WebClient webClient;
     private final String path;
@@ -32,7 +36,7 @@ public class CustomerAnalyticsServiceImpl implements CustomerAnalyticsService {
     }
 
     @Override
-    public void postAnalyticsData(final CustomerDetailDto customerDetailDto) {
+    public Mono<Void> postAnalyticsData(final CustomerDetailDto customerDetailDto) {
         List<TransactionDetailDto> transactions = repo.findByCustomerEmailIgnoreCase(customerDetailDto.getEmail())
                         .parallelStream()
                         .map(entity->mapper.map(entity, TransactionDetailDto.class))
@@ -46,11 +50,13 @@ public class CustomerAnalyticsServiceImpl implements CustomerAnalyticsService {
                 .transactions(transactions)
                 .build();
 
-        webClient.post()
+        return webClient.post()
                 .uri(path)
                 .header("X-API", "ABC123")
                 .body(Mono.just(request), CustomerAnalyticsRequest.class)
-                .retrieve();
+                .retrieve()
+                .bodyToMono(Void.class)
+                .then();
     }
 
     @NoArgsConstructor
