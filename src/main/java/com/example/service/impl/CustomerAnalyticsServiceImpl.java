@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Profile({"default", "mock"})
+@Profile({"default"})
 public class CustomerAnalyticsServiceImpl implements CustomerAnalyticsService {
     private final WebClient webClient;
     private final String path;
     private final TransactionRepository repo;
     private final ModelMapper mapper;
-    public CustomerAnalyticsServiceImpl(@Value("customeranalytics.host") String host,
-                                         @Value("customeranalytics.path") String path,
+    public CustomerAnalyticsServiceImpl(@Value("${customeranalytics.host}") String host,
+                                         @Value("${customeranalytics.path}") String path,
                                          TransactionRepository repo) {
         webClient = WebClient.create(host);
         this.path = path;

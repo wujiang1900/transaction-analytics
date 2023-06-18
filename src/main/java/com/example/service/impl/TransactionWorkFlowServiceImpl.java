@@ -1,12 +1,14 @@
 package com.example.service.impl;
 
-import com.example.transactionLoader.TransactionLoadService;
-import com.example.service.CustomerDetailService;
 import com.example.service.CustomerAnalyticsService;
+import com.example.service.CustomerDetailService;
+import com.example.service.TransactionLoadService;
 import com.example.service.TransactionWorkFlowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -17,15 +19,21 @@ public class TransactionWorkFlowServiceImpl implements TransactionWorkFlowServic
     public final CustomerAnalyticsService customerAnalyticsService;
 
     @Override
-    public void execute(String csvFileName, String email) {
+    public boolean execute(String csvFileName, String email) {
+        AtomicBoolean success = new AtomicBoolean(true);
         transactionLoadService.loadTransactionsFromCsvFile(csvFileName);
         customerDetailService.getCustomerDetails(email).doOnNext(
                 customerDetail->customerAnalyticsService.postAnalyticsData(customerDetail)
                         .doOnNext(Void->log.info("Successfully post transaction data. customer={}", email))
-                        .doOnError(e->log.error("Error encountered while posting transaction data. email={}", email, e))
+                        .doOnError(e->{
+                            success.set(false);
+                            log.error("Error encountered while posting transaction data. email={}", email, e);
+                        })
                         .subscribe()
-        ).doOnError(e->
-            log.error("Error encountered while getting customer details. email={}", email, e)
-        ).subscribe();
+        ).doOnError(e-> {
+            success.set(false);
+            log.error("Error encountered while getting customer details. email={}", email, e);
+        }).block();
+        return success.get();
     }
 }

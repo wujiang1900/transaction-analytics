@@ -1,4 +1,4 @@
-package com.example.transactionLoader;
+package com.example.service;
 
 public interface TransactionLoadService {
     void loadTransactionsFromCsvFile(String fileName);
