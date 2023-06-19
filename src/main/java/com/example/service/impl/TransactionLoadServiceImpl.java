@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -53,7 +54,7 @@ public class TransactionLoadServiceImpl implements TransactionLoadService {
     }
 
     @Override
-    public void loadTransactionsFromInputStream(String fileName) {
+    public void loadTransactionsFromInputStream(InputStream in) {
         throw new RuntimeException("Not Implemented yet.");
     }
 }

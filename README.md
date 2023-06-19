@@ -1,4 +1,4 @@
-# A reactive example java project that loads transaction data and posts to an analytics endpoint
+# A reactive webflux java project that loads transaction data and posts to an analytics endpoint
 This is a reactive example java project that loads transaction data from csv files, retrieves customer profile, and posts data to an analytics endpoint
 
 ## Requirements
@@ -70,8 +70,16 @@ Identify the technologies you would use in your design. You may stub out all ext
 
 ## Tech stack
 - **Backend**
-    - Spring Boot, Spring Webflux, Spring Cache, Spring Data
+    - Spring Boot, Spring Webflux, Spring Data
     - Maven
-    - Libraries (Lombok, ModelMap, Mockito, Junit 5)
+    - Libraries (Lombok, ModelMapper, Junit 5)
 
-## Pre-requisites
+## Implementation details
+1. Spring boot framework is chosen as the DI engine to manage the class dependencies. 
+2. Interface is utilized to abstract the real implementation, so that we can easily swap the implementations. e.g. use mock services to stub external api calls for integration testing.
+3. TransactionWorkFlowService is the service that coordinates all the steps needed in this project.
+4. TransactionLoadService is responsible for loading the transaction data from the upstream system (vendor csv files) or the company platform (how this will work is ambiguous and needs clarification, so I just defined an interface method).
+5. CustomerDetailService is responsible for retrieving customer details from an api endpoint. My implementation is to use reactive Webflux webclient. One can implement it with RestTemplate, or even messaging bus. Too many possible ways.
+6. CustomerAnalyticsService is responsible for creating request payload and posting to analytics endpoint. Again, my implementation is reactive Webflux webclient. Many other possible ways could be implemented. 
+7. H2 in-memory db is used in this project. We can easily swap it with a real DB in production env.
+8. TransactionDetailDto is the domain object in service layer that needs to be sent in request payload. TransactionDetail is the entity object that maps to db table to persist the transactions in DB. ModelMapper library is used to convert between these two objects.
