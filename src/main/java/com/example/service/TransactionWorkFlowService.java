@@ -1,6 +1,8 @@
 package com.example.service;
 
+import reactor.core.publisher.Mono;
+
 public interface TransactionWorkFlowService {
 
-    boolean execute(String csvFileName, String email);
+    Mono<String> execute(String csvFileName, String email);
 }

@@ -7,6 +7,7 @@ import com.example.service.TransactionWorkFlowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequiredArgsConstructor
 @Slf4j
 public class TransactionWorkFlowServiceImpl implements TransactionWorkFlowService {
-    public final CustomerDetailService customerDetailService;
-    public final TransactionLoadService transactionLoadService;
-    public final CustomerAnalyticsService customerAnalyticsService;
+    private final CustomerDetailService customerDetailService;
+    private final TransactionLoadService transactionLoadService;
+    private final CustomerAnalyticsService customerAnalyticsService;
 
     @Override
-    public boolean execute(String csvFileName, String email) {
+    public Mono<String> execute(String csvFileName, String email) {
         AtomicBoolean success = new AtomicBoolean(true);
         transactionLoadService.loadTransactionsFromCsvFile(csvFileName);
         customerDetailService.getCustomerDetails(email).doOnNext(
@@ -33,7 +34,7 @@ public class TransactionWorkFlowServiceImpl implements TransactionWorkFlowServic
         ).doOnError(e-> {
             success.set(false);
             log.error("Error encountered while getting customer details. email={}", email, e);
-        }).block();
-        return success.get();
+        });
+        return Mono.just("Pending");
     }
 }

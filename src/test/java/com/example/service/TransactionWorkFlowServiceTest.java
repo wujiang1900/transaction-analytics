@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TransactionAnalyticsApplication.class)
@@ -21,6 +22,6 @@ public class TransactionWorkFlowServiceTest {
 
     @Test
     public void test(){
-        assertTrue(transactionWorkFlowService.execute("amazon.csv", "rich123@gmail.com"));
+        transactionWorkFlowService.execute("amazon.csv", "rich123@gmail.com").doOnNext(value->assertEquals(value, "Pending"));
     }
 }
